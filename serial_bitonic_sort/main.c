@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <omp.h>
 //#include "serial_bitonicSort.h"
 
 enum dir {up = 0, down};
@@ -95,16 +96,18 @@ void merge(int *v, int len){
         while(step > 0){
             
            // printf("STEP %d\n", step);
-           
-            for(int i = 0, c = step, d = 0; i < len && c < len; c+=current, i+=current, d++){
+       
+            for(int i = 0, c = step, d = 0; (i < len) && (c < len); c+=current, i+=current, d++){
                 //printf("(%d,%d) ", i,c);
                 for(int k = i, l = c; k < c; k++, l++){
-                   // printf(" (%d,%d) dir = %d",k,l, dir);
+                // printf(" (%d,%d) dir = %d",k,l, dir);
                     test_and_swap(&v[k], &v[l], dir);
                     
+                   
                     cont_dir++;
 
                     if(cont_dir > cbs / 2 - 1){
+
                         cont_dir = 0;
                         if(dir == 0){
                         dir = 1;
@@ -112,7 +115,6 @@ void merge(int *v, int len){
                         dir = 0;
                         }
                     }
-
                 }
                 //printf("\n");
             }
@@ -182,7 +184,9 @@ void bSort(int *v, int len){
 
     firstStep(v, len); // aparentemente ok
 
+  
     merge(v, len);
+    
     mergeBitonicSequence(v, len);
 
 }
@@ -342,8 +346,10 @@ int main(){
         fscanf(f, "%d", (v+i));
     }
 
+  
     bSort(v, len);
 
+    
     int idx_falha = -1;
     printf(isSorted(v, len, &idx_falha) ? ("\nOrdenado\n") : ("\nNao ordenado\n")); 
 
